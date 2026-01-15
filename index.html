@@ -537,7 +537,7 @@
       <i class="fa-solid fa-exclamation-triangle mr-2"></i>实时行情加载失败，使用行业参考价
     </div>
 
-    <!-- 价格卡片网格 -->
+    <!-- 价格卡片网格 - 替代原来的表格 -->
     <div class="prices-grid mb-8">
       <!-- 黄金(Au999)卡片 -->
       <div class="price-card">
@@ -734,10 +734,9 @@
 
   <script>
     // ============================
-    // 核心配置
+    // 配置参数
     // ============================
-    const APP_KEY = "d9d7abf29c170a00"; // 你的极速数据API密钥
-    const API_URL = `https://api.jisuapi.com/gold/shgold?appkey=${APP_KEY}`;
+    const APP_KEY = "d9d7abf29c170a00";
     
     // 备用参考价
     const fallbackPrices = {
@@ -771,83 +770,81 @@
     }
 
     // ============================
-    // API调用函数
+    // API数据处理函数
     // ============================
-    async function getRealTimeGoldPrice() {
-      try {
-        // 设置超时控制
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
-        const response = await fetch(API_URL, {
-          method: 'GET',
-          signal: controller.signal,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/json'
-          }
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`API请求失败: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // 检查API返回状态
-        if (data.status !== "0") {
-          throw new Error(data.msg || "API返回错误");
-        }
-        
-        return processAPIData(data);
-        
-      } catch (error) {
-        console.log("实时API调用失败:", error.message);
-        return getFallbackData();
-      }
-    }
-
-    // ============================
-    // 数据处理函数
-    // ============================
-    function processAPIData(apiData) {
-      const result = apiData.result;
-      const processedData = {
-        gold: {}, gold999: {}, gold22k: {}, gold18k: {},
-        silver: {}, platinum: {}
-      };
+    function processGoldData(apiData) {
+      console.log('处理黄金数据:', apiData);
       
-      // 处理黄金数据（Au9999）
-      if (result.shgold) {
-        const gold = result.shgold;
-        const goldPrice = parseFloat(gold.price) || fallbackPrices.gold;
-        const goldHigh = parseFloat(gold.high) || fallbackRange.gold.high;
-        const goldLow = parseFloat(gold.low) || fallbackRange.gold.low;
-        
-        processedData.gold = {
+      if (apiData.status !== 0 && apiData.status !== "0") {
+        console.log('黄金API返回错误:', apiData.msg);
+        return null;
+      }
+      
+      const resultList = apiData.result || [];
+      let au9999 = null;
+      
+      // 查找Au9999数据
+      if (Array.isArray(resultList)) {
+        au9999 = resultList.find(item => 
+          item.type === 'Au99.99' || 
+          item.typename === 'AU9999' || 
+          item.type === 'Au(T+D)'
+        );
+      }
+      
+      if (!au9999) {
+        console.log('未找到Au9999数据');
+        return null;
+      }
+      
+      console.log('找到黄金数据:', au9999);
+      
+      const goldPrice = parseFloat(au9999.price) || fallbackPrices.gold;
+      const goldHigh = parseFloat(au9999.maxprice) || parseFloat(au9999.openingprice) || fallbackRange.gold.high;
+      const goldLow = parseFloat(au9999.minprice) || fallbackRange.gold.low;
+      
+      return {
+        gold: {
           price: goldPrice,
           high: goldHigh,
           low: goldLow,
-          change: parseFloat(gold.change) || 0,
-          time: gold.time || formatDateTime()
-        };
-        
-        // 计算衍生品种价格
-        processedData.gold999 = {
+          change: parseFloat(au9999.changepercen) || 0,
+          time: au9999.updatedtime || formatDateTime()
+        },
+        gold999: {
           price: goldPrice - 0.85,
           high: goldHigh - 0.85,
           low: goldLow - 0.85,
-          time: processedData.gold.time
-        };
-        
-        processedData.gold22k = {
+          time: au9999.updatedtime || formatDateTime()
+        },
+        gold22k: {
           price: goldPrice * 0.916,
           high: goldHigh * 0.916,
           low: goldLow * 0.916,
-          time: processedData.gold.time
-        };
-        
-        processedData.gold18k = {
-          price: goldPrice *
+          time: au9999.updatedtime || formatDateTime()
+        },
+        gold18k: {
+          price: goldPrice * 0.75,
+          high: goldHigh * 0.75,
+          low: goldLow * 0.75,
+          time: au9999.updatedtime || formatDateTime()
+        },
+        isReal: true
+      };
+    }
+    
+    function processSilverData(apiData) {
+      console.log('处理白银数据:', apiData);
+      
+      if (apiData.status !== 0 && apiData.status !== "0") {
+        console.log('白银API返回错误:', apiData.msg);
+        return null;
+      }
+      
+      const resultList = apiData.result || [];
+      let silverData = null;
+      
+      // 查找白银数据
+      if (Array.isArray(resultList)) {
+        silverData = resultList.find(item => 
+          item.type.includes('Ag') || 
