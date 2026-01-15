@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>金鑫商贸金属 | 新春大吉</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 全局基础样式 - 新年红金主题 */
+    :root {
+      --red-primary: #D81F26; /* 新年红 */
+      --red-light: #F8E0E0;    /* 浅红 */
+      --gold-primary: #FFD700; /* 鎏金 */
+      --gold-light: #FFF3C0;   /* 浅金 */
+      --black-dark: #121212;   /* 深黑 */
+      --black-medium: #1E1E1E; /* 中黑 */
+      --black-light: #282828;  /* 浅黑 */
+    }
+
+    body {
+      background-color: var(--black-dark) !important;
+      color: #fff !important;
+      background-image: 
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0h-5.254c-0.8 0-1.45.65-1.45 1.45v5.254c0 0.8 0.65 1.45 1.45 1.45h5.254c0.8 0 1.45-0.65 1.45-1.45v-5.254C56.077 0.65 55.427 0 54.627 0zM54.627 9.157h-5.254c-0.8 0-1.45.65-1.45 1.45v5.254c0 0.8 0.65 1.45 1.45 1.45h5.254c0.8 0 1.45-0.65 1.45-1.45v-5.254C56.077 9.807 55.427 9.157 54.627 9.157zM45.47 0h-5.254c-0.8 0-1.45.65-1.45 1.45v5.254c0 0.8 0.65 1.45 1.45 1.45h5.254c0.8 0 1.45-0.65 1.45-1.45v-5.254C46.92 0.65 46.27 0 45.47 0zM45.47 9.157h-5.254c-0.8 0-1.45.65-1.45 1.45v5.254c0 0.8 0.65 1.45 1.45 1.45h5.254c0.8 0 1.45-0.65 1.45-1.45v-5.254C46.92 9.807 46.27 9.157 45.47 9.157z' fill='%23d81f26' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+      scroll-behavior: smooth; /* 平滑滚动 */
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* 新年顶部横幅 - 移动端优化 */
+    .newyear-banner {
+      background: linear-gradient(120deg, var(--red-primary), #B71C1C);
+      color: var(--gold-primary);
+      text-align: center;
+      padding: 0.8rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .newyear-banner::before, .newyear-banner::after {
+      content: "🧧";
+      position: absolute;
+      font-size: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    .newyear-banner::before {
+      left: 2rem;
+      animation-delay: 0s;
+    }
+    .newyear-banner::after {
+      right: 2rem;
+      animation-delay: 1s;
+    }
+    .newyear-banner .decor {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+    .newyear-banner .decor.left {
+      left: 6rem;
+    }
+    .newyear-banner .decor.right {
+      right: 6rem;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes shine {
+      0% { background-position: -100px; }
+      100% { background-position: 200px; }
+    }
+
+    /* 头部样式 - 移动端视觉增强 */
+    .header-container {
+      background: linear-gradient(135deg, var(--black-medium), var(--black-dark));
+      border-bottom: 2px solid var(--gold-primary);
+      box-shadow: 0 4px 12px rgba(216, 31, 38, 0.2);
+      position: relative;
+      padding: 1rem 0 !important;
+    }
+    .header-title {
+      background: linear-gradient(90deg, var(--gold-primary), #FFEF9F);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+      position: relative;
+      letter-spacing: 1px; /* 移动端减小字间距 */
+      line-height: 1.2;
+    }
+    .header-title::after {
+      content: "";
+      display: block;
+      width: 90%; /* 移动端加宽下划线 */
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+      margin: 0.5rem auto;
+    }
+    .refresh-status {
+      transition: all 0.3s ease;
+      font-size: 0.9rem !important;
+      color: var(--gold-light) !important;
+    }
+
+    /* 价格卡片网格布局 - 核心修改 */
+    .prices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 8rem;
+    }
+    
+    /* 单个金属价格卡片样式 */
+    .price-card {
+      background: var(--black-medium) !important;
+      border-radius: 12px !important;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 215, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+    }
+    
+    .price-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(216, 31, 38, 0.2);
+      border-color: rgba(255, 215, 0, 0.3);
+    }
+    
+    /* 卡片头部 */
+    .price-card-header {
+      background: linear-gradient(90deg, var(--red-primary), #A51818) !important;
+      color: var(--gold-primary) !important;
+      padding: 1rem 1.2rem;
+      position: relative;
+    }
+    
+    .price-card-header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shine 2s infinite linear;
+    }
+    
+    .price-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* 卡片内容 */
+    .price-card-body {
+      padding: 1.2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .price-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .price-label {
+      font-size: 0.9rem;
+      color: var(--gold-light);
+      margin-bottom: 0.3rem;
+      opacity: 0.8;
+    }
+    
+    .price-value {
+      color: var(--gold-primary);
+      font-weight: 700;
+      font-size: 1.1rem !important;
+      letter-spacing: 0.5px;
+    }
+    
+    .price-range {
+      grid-column: 1 / 3;
+    }
+
+    /* 联系卡片样式 - 移动端优化 */
+    .contact-card {
+      background: linear-gradient(135deg, var(--black-medium), var(--black-dark)) !important;
+      border-radius: 16px !important; /* 移动端更大圆角更美观 */
+      border: 1px solid rgba(255, 215, 0, 0.2) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      padding: 1.5rem !important; /* 优化移动端内边距 */
+      margin: 0 auto;
+      max-width: 100%;
+    }
+    .contact-card:hover {
+      transform: none; /* 移动端取消悬浮上移 */
+    }
+    .contact-title {
+      color: var(--gold-primary) !important;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1.6rem !important;
+      font-weight: 700;
+    }
+    .contact-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 0;
+    }
+    .contact-icon {
+      width: 2.5rem; /* 移动端增大图标，提升触控体验 */
+      height: 2.5rem;
+      background: var(--red-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(216, 31, 38, 0.3);
+    }
+    .contact-icon i {
+      font-size: 1.2rem !important;
+    }
+
+    /* 定位链接样式 - 移动端优化 */
+    .location-link {
+      color: var(--gold-primary) !important;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--gold-primary);
+      transition: all 0.3s ease;
+      padding-bottom: 2px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .location-link:hover {
+      color: #fff !important;
+      border-bottom: 1px solid var(--red-primary);
+      transform: none; /* 移动端取消位移 */
+    }
+    .location-coords {
+      color: var(--gold-light) !important;
+      font-style: italic;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* 二维码容器样式 - 移动端重点优化 */
+    .qrcodes-container {
+      background: linear-gradient(135deg, rgba(216, 31, 38, 0.1), rgba(255, 215, 0, 0.05)) !important;
+      border-radius: 16px !important;
+      padding: 1.5rem 1rem !important;
+      margin-top: 1.5rem;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+      display: flex;          
+      justify-content: center;
+      gap: 2rem;              
+      flex-wrap: wrap;        
+    }
+    .qrcode-item {
+      transition: all 0.3s ease;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border-radius: 12px;
+      display: flex;          
+      flex-direction: column; 
+      align-items: center;    
+      justify-content: center;
+      min-width: 160px;
+      width: 45%; /* 移动端两列均分 */
+      max-width: 200px;
+    }
+    .qrcode-item:hover {
+      transform: none; /* 移动端取消悬浮效果 */
+      background: transparent;
+    }
+    .qrcode-img {
+      border: 2px solid var(--gold-primary) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+      background: rgba(255, 215, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      font-size: 0.9rem;
+      margin: 0 auto 0.8rem auto;
+      width: 160px !important; /* 移动端优化二维码尺寸 */
+      height: 160px !important;
+    }
+    .qrcode-title {
+      color: var(--gold-primary) !important;
+      margin-bottom: 0.8rem !important;
+      margin-top: 0;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .qrcode-tip {
+      color: var(--gold-light) !important;
+      margin-top: 0.8rem;
+      margin-bottom: 0;
+      font-size: 0.85rem;
+      width: 100%;
+      line-height: 1.4;
+    }
+
+    /* 加载/错误提示样式 - 移动端优化 */
+    #loading, #error {
+      font-size: 1rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      margin: 1rem auto;
+      max-width: 95%;
+      text-align: center;
+      transition: all 0.3s ease;
+      line-height: 1.5;
+    }
+    #loading {
+      color: var(--gold-light);
+      background: rgba(216, 31, 38, 0.1);
+      border-left: 4px solid var(--gold-primary);
+    }
+    #error {
+      color: var(--red-primary);
+      background: rgba(248, 224, 224, 0.1);
+      border-left: 4px solid var(--red-primary);
+    }
+
+    /* 页脚样式 - 移动端优化 */
+    footer {
+      background: linear-gradient(90deg, var(--black-dark), var(--black-medium)) !important;
+      border-top: 2px solid var(--gold-primary);
+      padding: 1.5rem 0 !important;
+      margin-top: 2rem !important;
+      position: relative;
+    }
+    footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+    }
+    .footer-text {
+      color: var(--gold-light);
+      line-height: 1.6;
+      font-size: 0.9rem;
+      padding: 0 1rem;
+    }
+
+    /* 回到顶部按钮 - 移动端优化 */
+    .back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 1.5rem; /* 移动端调整位置 */
+      width: 3.5rem; /* 增大触控区域 */
+      height: 3.5rem;
+      background: var(--red-primary);
+      color: var(--gold-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(216, 31, 38, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 999;
+    }
+    .back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .back-to-top:hover {
+      transform: none; /* 移动端取消缩放 */
+      background: #b71c1c;
+    }
+    .back-to-top i {
+      font-size: 1.2rem;
+    }
+
+    /* 移动端响应式 - 核心优化 */
+    @media (max-width: 768px) {
+      /* 基础样式优化 */
+      html, body {
+        font-size: 16px; /* 基准字号，提升可读性 */
+        overflow-x: hidden;
+      }
+      
+      /* 横幅优化 */
+      .newyear-banner::before, .newyear-banner::after,
+      .newyear-banner .decor {
+        display: none;
+      }
+      .newyear-banner h3 {
+        font-size: 1.1rem !important;
+        padding: 0 0.5rem;
+        line-height: 1.4;
+      }
+      .newyear-banner p {
+        font-size: 0.9rem !important;
+        margin-top: 0.5rem;
+      }
+
+      /* 头部优化 */
+      .header-title {
+        font-size: 1.8rem !important;
+        padding: 0 0.5rem;
+      }
+      .refresh-status {
+        font-size: 0.85rem !important;
+        padding: 0 0.5rem;
+      }
+
+      /* 价格卡片响应式优化 */
+      .prices-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .price-card {
+        margin: 0 0.5rem;
+      }
+      
+      .price-card-body {
+        padding: 1rem;
+        gap: 0.8rem;
+      }
+      
+      .price-value {
+        font-size: 1rem !important;
+      }
+      
+      /* 联系信息优化 */
+      .contact-card {
+        padding: 1rem !important;
+        margin: 0 0.5rem;
+      }
+      .contact-info p {
+        font-size: 1rem !important;
+        line-height: 1.5;
+        flex: 1;
+        min-width: calc(100% - 4rem);
+      }
+      .contact-icon {
+        margin-bottom: 0.5rem;
+      }
+
+      /* 二维码优化 */
+      .qrcodes-container {
+        padding: 1rem 0.5rem !important;
+        gap: 1.5rem !important;
+        margin: 1rem 0;
+      }
+      .qrcode-item {
+        min-width: 150px;
+        width: 100%; /* 小屏单列显示 */
+        max-width: 220px;
+        padding: 0.8rem 0;
+      }
+      .qrcode-img {
+        width: 150px !important;
+        height: 150px !important;
+      }
+
+      /* 回到顶部按钮 */
+      .back-to-top {
+        bottom: 1.5rem;
+        right: 1rem;
+        width: 3rem;
+        height: 3rem;
+      }
+
+      /* 通用间距优化 */
+      main {
+        padding: 1rem 0.5rem !important;
+      }
+      .container {
+        padding: 0 0.5rem !important;
+      }
+    }
+
+    /* 小屏手机特殊优化 */
+    @media (max-width: 375px) {
+      .header-title {
+        font-size: 1.6rem !important;
+      }
+      .qrcode-img {
+        width: 140px !important;
+        height: 140px !important;
+      }
+      .price-card-body {
+        padding: 0.8rem;
+      }
+      .price-value {
+        font-size: 0.95rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <!-- 新年顶部横幅 -->
+  <div class="newyear-banner">
+    <span class="decor left">🏮</span>
+    <h3 class="text-lg md:text-xl font-bold">🏮 新春大吉 马年行大运 🏮</h3>
+    <span class="decor right">🏮</span>
+    <p class="text-sm md:text-base mt-1">金鑫商贸祝您新年快乐，财运亨通</p>
+  </div>
+
+  <!-- 头部 -->
+  <header class="header-container py-6">
+    <div class="container mx-auto px-4">
+      <h1 class="header-title text-3xl md:text-4xl font-bold text-center">金鑫商贸金属</h1>
+      <p class="text-center text-sm text-gold-light mt-3 refresh-status" id="refresh-status">最后更新：-- | 数据源：极速数据-上海黄金交易所</p>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <!-- 加载/错误提示 -->
+    <div id="loading" class="mb-6">
+      <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>正在加载实时行情数据...
+    </div>
+    <div id="error" class="mb-6 hidden">
+      <i class="fa-solid fa-exclamation-triangle mr-2"></i>实时行情加载失败，使用行业参考价
+    </div>
+
+    <!-- 价格卡片网格 -->
+    <div class="prices-grid mb-8">
+      <!-- 黄金(Au999)卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">黄金(Au999)</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="gold-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="gold-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="gold-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 千足金(投资板料)卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">千足金(投资板料)</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="gold999-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="gold999-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="gold999-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 22K金卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">22K金</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="gold22k-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="gold22k-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="gold22k-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 18K金卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">18K金</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="gold18k-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="gold18k-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="gold18k-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 白银卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">白银</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="silver-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="silver-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="silver-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 铂金卡片 -->
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3 class="price-card-title">铂金（PT950-PT990）</h3>
+        </div>
+        <div class="price-card-body">
+          <div class="price-item">
+            <span class="price-label">回购价(元/克)</span>
+            <span class="price-value" id="platinum-buy">--</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">销售价(元/克)</span>
+            <span class="price-value" id="platinum-sell">--</span>
+          </div>
+          <div class="price-item price-range">
+            <span class="price-label">今日最高/最低(元/克)</span>
+            <span class="price-value" id="platinum-high-low">-- / --</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 联系我们卡片 -->
+    <div class="contact-card p-8">
+      <h2 class="contact-title text-2xl font-bold flex items-center">
+        <i class="fa-solid fa-phone-volume mr-3 text-red-primary"></i> 联系我们
+      </h2>
+      
+      <div class="contact-info">
+        <div class="contact-icon">
+          <i class="fa-solid fa-mobile-screen-button text-gold-primary text-xl"></i>
+        </div>
+        <p class="text-lg">电话：<span class="text-gold-primary">18885888874</span></p>
+      </div>
+      
+      <div class="contact-info">
+        <div class="contact-icon">
+          <i class="fa-solid fa-location-dot text-gold-primary text-xl"></i>
+        </div>
+        <p class="text-lg">
+          地址：<a href="https://amap.com/navigation?to=104.8765,26.5890&name=金鑫商贸金属&type=0" target="_blank" class="location-link">六盘水市钟山区凤凰路星筑中央公园E区5号楼111铺</a>
+        </p>
+      </div>
+      
+      <div class="contact-info">
+        <div class="contact-icon">
+          <i class="fa-solid fa-map-marker-alt text-gold-primary text-xl"></i>
+        </div>
+        <p class="location-coords text-lg">定位坐标：东经 104.8765°，北纬 26.5890°</p>
+      </div>
+      
+      <div class="contact-info">
+        <div class="contact-icon">
+          <i class="fa-solid fa-circle-info text-gold-primary text-xl"></i>
+        </div>
+        <p class="text-lg">业务范围：黄金回收、钻石回收、铂金回收、白银回收、手机回收、实物抵押</p>
+      </div>
+      
+      <!-- 2个微信二维码区域 -->
+      <div class="qrcodes-container">
+        <!-- 第一个二维码 -->
+        <div class="qrcode-item">
+          <p class="qrcode-title text-lg mb-3"><i class="fa-brands fa-weixin mr-2 text-red-primary"></i> 微信1（主营黄金回收）</p>
+          <div class="qrcode-img w-[180px] h-[180px]">微信二维码1</div>
+          <p class="qrcode-tip mt-3 text-gold-light">长按识别，咨询黄金价格</p>
+        </div>
+        <!-- 第二个二维码 -->
+        <div class="qrcode-item">
+          <p class="qrcode-title text-lg mb-3"><i class="fa-brands fa-weixin mr-2 text-red-primary"></i> 微信2（主营铂金钻石）</p>
+          <div class="qrcode-img w-[180px] h-[180px]">微信二维码2</div>
+          <p class="qrcode-tip mt-3 text-gold-light">长按识别，咨询铂金/钻石</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container mx-auto px-4 text-center">
+      <p class="footer-text text-lg mb-2">贵金属行情同步上海黄金交易所实时数据，实际交易价格以线下沟通为准</p>
+      <p class="footer-text text-sm">© 2026 金鑫商贸金属 版权所有 | 新春特惠，诚信经营</p>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="fa-solid fa-arrow-up"></i>
+  </div>
+
+  <script>
+    // ============================
+    // 核心配置
+    // ============================
+    const APP_KEY = "d9d7abf29c170a00"; // 你的极速数据API密钥
+    const API_URL = `https://api.jisuapi.com/gold/shgold?appkey=${APP_KEY}`;
+    
+    // 备用参考价
+    const fallbackPrices = {
+      gold: 482.65,    // 黄金（Au999）
+      gold999: 481.80, // 千足金(投资金条)
+      gold22k: 441.10, // 22K金（黄金价*0.916）
+      gold18k: 361.95, // 18K金（黄金价*0.75）
+      silver: 6.38,    // 白银Ag925-ag999
+      platinum: 236.50 // 铂金PT950-PT990
+    };
+    
+    // 今日高低价参考
+    const fallbackRange = {
+      gold: { high: 484.20, low: 481.10 },
+      gold999: { high: 483.30, low: 480.40 },
+      gold22k: { high: 442.50, low: 439.80 },
+      gold18k: { high: 362.50, low: 360.80 },
+      silver: { high: 6.45, low: 6.32 },
+      platinum: { high: 238.20, low: 235.10 }
+    };
+
+    // ============================
+    // 工具函数
+    // ============================
+    function formatDateTime() {
+      const now = new Date();
+      return now.toLocaleString('zh-CN', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+
+    // ============================
+    // API调用函数
+    // ============================
+    async function getRealTimeGoldPrice() {
+      try {
+        // 设置超时控制
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`API请求失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // 检查API返回状态
+        if (data.status !== "0") {
+          throw new Error(data.msg || "API返回错误");
+        }
+        
+        return processAPIData(data);
+        
+      } catch (error) {
+        console.log("实时API调用失败:", error.message);
+        return getFallbackData();
+      }
+    }
+
+    // ============================
+    // 数据处理函数
+    // ============================
+    function processAPIData(apiData) {
+      const result = apiData.result;
+      const processedData = {
+        gold: {}, gold999: {}, gold22k: {}, gold18k: {},
+        silver: {}, platinum: {}
+      };
+      
+      // 处理黄金数据（Au9999）
+      if (result.shgold) {
+        const gold = result.shgold;
+        const goldPrice = parseFloat(gold.price) || fallbackPrices.gold;
+        const goldHigh = parseFloat(gold.high) || fallbackRange.gold.high;
+        const goldLow = parseFloat(gold.low) || fallbackRange.gold.low;
+        
+        processedData.gold = {
+          price: goldPrice,
+          high: goldHigh,
+          low: goldLow,
+          change: parseFloat(gold.change) || 0,
+          time: gold.time || formatDateTime()
+        };
+        
+        // 计算衍生品种价格
+        processedData.gold999 = {
+          price: goldPrice - 0.85,
+          high: goldHigh - 0.85,
+          low: goldLow - 0.85,
+          time: processedData.gold.time
+        };
+        
+        processedData.gold22k = {
+          price: goldPrice * 0.916,
+          high: goldHigh * 0.916,
+          low: goldLow * 0.916,
+          time: processedData.gold.time
+        };
+        
+        processedData.gold18k = {
+          price: goldPrice *
