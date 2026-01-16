@@ -765,245 +765,76 @@
     // 【核心修复】使用新浪财经公开接口（全网可访问，无域名解析问题）
     async function getRealTimeGoldPrice() {
       try {
-        // 方案1：新浪财经黄金接口（最稳定，全网可访问）
-        const goldResponse = await fetch('https://finance.sina.com.cn/futures/quotes/AU9999.shtml', {
-          method: 'GET',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Referer': 'https://finance.sina.com.cn/'
-          }
-        });
-
-        if (!goldResponse.ok) throw new Error('新浪接口响应失败');
-        
-        const htmlText = await goldResponse.text();
-        
-        // 正则提取黄金价格（适配新浪页面结构）
-        const goldPriceMatch = htmlText.match(/AU9999<\/span>[\s\S]*?<span class="price f-up">(.*?)<\/span>/);
-        let realGoldPrice = goldPriceMatch ? parseFloat(goldPriceMatch[1]) : fallbackPrices.gold;
-        
-        // 验证黄金价格有效性
-        if (isNaN(realGoldPrice) || realGoldPrice < 100) {
-          realGoldPrice = fallbackPrices.gold;
-        }
-
-        // 白银和铂金价格基于黄金价格合理推算（避免多接口调用）
-        let realSilverPrice = fallbackPrices.silver;
-        let realPlatinumPrice = fallbackPrices.platinum;
-        
-        // 尝试获取白银价格（备选）
-        try {
-          const silverResponse = await fetch('https://finance.sina.com.cn/futures/quotes/AGTD.shtml');
-          const silverHtml = await silverResponse.text();
-          const silverMatch = silverHtml.match(/AGTD<\/span>[\s\S]*?<span class="price f-up">(.*?)<\/span>/);
-          if (silverMatch) {
-            const silverPriceUsd = parseFloat(silverMatch[1]);
-            if (!isNaN(silverPriceUsd)) {
-              // 美元/盎司 转 人民币/克 (1盎司=31.1035克，汇率按7.2算)
-              realSilverPrice = (silverPriceUsd * 7.2 / 31.1035).toFixed(2) * 1;
-            }
-          }
-        } catch (e) {
-          console.log('白银接口获取失败，使用备用价:', e.message);
-        }
-
-        // 铂金价格基于黄金价格比例推算
-        realPlatinumPrice = (realGoldPrice * 0.49).toFixed(2) * 1;
-
-        console.log('提取的实时价格：', {
-          gold: realGoldPrice,
-          silver: realSilverPrice,
-          platinum: realPlatinumPrice
-        });
-
-        // 返回最终价格数据
-        return {
-          gold: realGoldPrice,
-          gold999: realGoldPrice - 0.85,
-          gold22k: realGoldPrice * 0.916,
-          gold18k: realGoldPrice * 0.75,
-          silver: realSilverPrice,
-          platinum: realPlatinumPrice,
-          range: {
-            gold: { high: realGoldPrice + 1.55, low: realGoldPrice - 1.55 },
-            gold999: { high: (realGoldPrice - 0.85) + 1.55, low: (realGoldPrice - 0.85) - 1.55 },
-            gold22k: { high: (realGoldPrice * 0.916) + 1.4, low: (realGoldPrice * 0.916) - 1.4 },
-            gold18k: { high: (realGoldPrice * 0.75) + 1.2, low: (realGoldPrice * 0.75) - 1.2 },
-            silver: { high: realSilverPrice + 0.07, low: realSilverPrice - 0.06 },
-            platinum: { high: realPlatinumPrice + 1.7, low: realPlatinumPrice - 1.7 }
-          },
-          isReal: true
-        };
-      } catch (error) {
-        console.error("实时价格获取失败：", error.message);
-        // API失败时返回备用价格
-        return {
-          ...fallbackPrices,
-          range: fallbackRange,
-          isReal: false
-        };
+       // 【适配极速数据接口】解决跨域+稳定获取实时价
+async function getRealTimeGoldPrice() {
+  try {
+    // ********** 只需要改这里 **********
+    const APPKEY = "你的极速数据appkey"; // 替换成你注册的appkey
+    // *********************************
+    
+    // 调用极速数据接口（支持跨域，GitHub部署可用）
+    const apiUrl = `https://api.jisuapi.com/gold/shgold?appkey=${APPKEY}`;
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
-    }
-
-    // 计算回购价/销售价
-    function calculatePrices(realTimeData) {
-      return {
-        gold: {
-          buy: (realTimeData.gold - 2).toFixed(2),
-          sell: realTimeData.gold.toFixed(2),
-          high: realTimeData.range.gold.high.toFixed(2),
-          low: realTimeData.range.gold.low.toFixed(2)
-        },
-        gold999: {
-          buy: (realTimeData.gold999 - 2).toFixed(2),
-          sell: realTimeData.gold999.toFixed(2),
-          high: realTimeData.range.gold999.high.toFixed(2),
-          low: realTimeData.range.gold999.low.toFixed(2)
-        },
-        gold22k: {
-          buy: (realTimeData.gold22k - 2).toFixed(2),
-          sell: realTimeData.gold22k.toFixed(2),
-          high: realTimeData.range.gold22k.high.toFixed(2),
-          low: realTimeData.range.gold22k.low.toFixed(2)
-        },
-        gold18k: {
-          buy: (realTimeData.gold18k - 2).toFixed(2),
-          sell: realTimeData.gold18k.toFixed(2),
-          high: realTimeData.range.gold18k.high.toFixed(2),
-          low: realTimeData.range.gold18k.low.toFixed(2)
-        },
-        silver: {
-          buy: (realTimeData.silver - 0.5).toFixed(2),
-          sell: realTimeData.silver.toFixed(2),
-          high: realTimeData.range.silver.high.toFixed(2),
-          low: realTimeData.range.silver.low.toFixed(2)
-        },
-        platinum: {
-          buy: (realTimeData.platinum - 2).toFixed(2),
-          sell: realTimeData.platinum.toFixed(2),
-          high: realTimeData.range.platinum.high.toFixed(2),
-          low: realTimeData.range.platinum.low.toFixed(2)
-        }
-      };
-    }
-
-    // 更新页面显示
-    async function updatePage() {
-      // 显示加载状态
-      document.getElementById('loading').classList.remove('hidden');
-      document.getElementById('error').classList.add('hidden');
-
-      try {
-        // 获取实时数据
-        const realTimeData = await getRealTimeGoldPrice();
-        console.log('处理后的实时数据：', realTimeData);
-        
-        // 计算最终价格
-        const prices = calculatePrices(realTimeData);
-
-        // 更新页面状态
-        document.getElementById('loading').classList.add('hidden');
-        if (!realTimeData.isReal) {
-          document.getElementById('error').classList.remove('hidden');
-        }
-        document.getElementById('refresh-status').textContent = 
-          `最后更新：${formatDateTime()} | 数据源：${realTimeData.isReal ? '新浪财经实时数据' : '行业参考价'}`;
-
-        // 渲染黄金相关
-        document.getElementById('gold-buy').textContent = prices.gold.buy;
-        document.getElementById('gold-sell').textContent = prices.gold.sell;
-        document.getElementById('gold-high-low').textContent = `${prices.gold.high} / ${prices.gold.low}`;
-
-        document.getElementById('gold999-buy').textContent = prices.gold999.buy;
-        document.getElementById('gold999-sell').textContent = prices.gold999.sell;
-        document.getElementById('gold999-high-low').textContent = `${prices.gold999.high} / ${prices.gold999.low}`;
-
-        document.getElementById('gold22k-buy').textContent = prices.gold22k.buy;
-        document.getElementById('gold22k-sell').textContent = prices.gold22k.sell;
-        document.getElementById('gold22k-high-low').textContent = `${prices.gold22k.high} / ${prices.gold22k.low}`;
-
-        document.getElementById('gold18k-buy').textContent = prices.gold18k.buy;
-        document.getElementById('gold18k-sell').textContent = prices.gold18k.sell;
-        document.getElementById('gold18k-high-low').textContent = `${prices.gold18k.high} / ${prices.gold18k.low}`;
-
-        // 渲染白银相关
-        document.getElementById('silver-buy').textContent = prices.silver.buy;
-        document.getElementById('silver-sell').textContent = prices.silver.sell;
-        document.getElementById('silver-high-low').textContent = `${prices.silver.high} / ${prices.silver.low}`;
-
-        // 渲染铂金相关
-        document.getElementById('platinum-buy').textContent = prices.platinum.buy;
-        document.getElementById('platinum-sell').textContent = prices.platinum.sell;
-        document.getElementById('platinum-high-low').textContent = `${prices.platinum.high} / ${prices.platinum.low}`;
-      } catch (err) {
-        console.error("更新页面失败：", err);
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('error').classList.remove('hidden');
-        
-        // 强制使用备用价格更新
-        const prices = calculatePrices({
-          ...fallbackPrices,
-          range: fallbackRange,
-          isReal: false
-        });
-        
-        // 赋值所有价格
-        document.getElementById('gold-buy').textContent = prices.gold.buy;
-        document.getElementById('gold-sell').textContent = prices.gold.sell;
-        document.getElementById('gold-high-low').textContent = `${prices.gold.high} / ${prices.gold.low}`;
-        
-        document.getElementById('gold999-buy').textContent = prices.gold999.buy;
-        document.getElementById('gold999-sell').textContent = prices.gold999.sell;
-        document.getElementById('gold999-high-low').textContent = `${prices.gold999.high} / ${prices.gold999.low}`;
-        
-        document.getElementById('gold22k-buy').textContent = prices.gold22k.buy;
-        document.getElementById('gold22k-sell').textContent = prices.gold22k.sell;
-        document.getElementById('gold22k-high-low').textContent = `${prices.gold22k.high} / ${prices.gold22k.low}`;
-        
-        document.getElementById('gold18k-buy').textContent = prices.gold18k.buy;
-        document.getElementById('gold18k-sell').textContent = prices.gold18k.sell;
-        document.getElementById('gold18k-high-low').textContent = `${prices.gold18k.high} / ${prices.gold18k.low}`;
-        
-        document.getElementById('silver-buy').textContent = prices.silver.buy;
-        document.getElementById('silver-sell').textContent = prices.silver.sell;
-        document.getElementById('silver-high-low').textContent = `${prices.silver.high} / ${prices.silver.low}`;
-        
-        document.getElementById('platinum-buy').textContent = prices.platinum.buy;
-        document.getElementById('platinum-sell').textContent = prices.platinum.sell;
-        document.getElementById('platinum-high-low').textContent = `${prices.platinum.high} / ${prices.platinum.low}`;
-      }
-    }
-
-    // 回到顶部功能
-    function initBackToTop() {
-      const backToTopBtn = document.getElementById('backToTop');
-      
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-          backToTopBtn.classList.add('show');
-        } else {
-          backToTopBtn.classList.remove('show');
-        }
-      });
-      
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      });
-    }
-
-    // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-      updatePage();
-      initBackToTop();
-      // 30秒自动刷新
-      setInterval(updatePage, 30000);
-      
-      // 开启控制台调试（方便排查问题）
-      console.log('页面初始化完成，开始获取实时价格...');
     });
-  </script>
-</body>
-</html>
+
+    if (!response.ok) throw new Error(`接口响应失败：${response.status}`);
+    
+    const apiData = await response.json();
+    
+    // 检查接口返回是否正常
+    if (apiData.status !== 0) throw new Error(`接口报错：${apiData.msg}`);
+    const result = apiData.result;
+
+    // 提取核心价格（对接极速数据的返回格式）
+    let realGoldPrice = result.gold9999?.price || fallbackPrices.gold;       // Au9999黄金
+    let realGold999Price = result.gold9995?.price || fallbackPrices.gold999; // 千足金
+    let realSilverPrice = result.silver?.price || fallbackPrices.silver;     // 白银
+    let realPlatinumPrice = result.platinum?.price || fallbackPrices.platinum; // 铂金
+
+    // 验证价格有效性
+    if (isNaN(realGoldPrice) || realGoldPrice < 100) realGoldPrice = fallbackPrices.gold;
+    if (isNaN(realGold999Price) || realGold999Price < 100) realGold999Price = fallbackPrices.gold999;
+    if (isNaN(realSilverPrice) || realSilverPrice < 1) realSilverPrice = fallbackPrices.silver;
+    if (isNaN(realPlatinumPrice) || realPlatinumPrice < 100) realPlatinumPrice = fallbackPrices.platinum;
+
+    // 提取今日高低价（极速数据直接返回，不用推算）
+    const realRange = {
+      gold: { high: result.gold9999?.high || fallbackRange.gold.high, low: result.gold9999?.low || fallbackRange.gold.low },
+      gold999: { high: result.gold9995?.high || fallbackRange.gold999.high, low: result.gold9995?.low || fallbackRange.gold999.low },
+      gold22k: { high: (realGoldPrice * 0.916) + 1.4, low: (realGoldPrice * 0.916) - 1.4 }, // 22K金高低价
+      gold18k: { high: (realGoldPrice * 0.75) + 1.2, low: (realGoldPrice * 0.75) - 1.2 },   // 18K金高低价
+      silver: { high: result.silver?.high || fallbackRange.silver.high, low: result.silver?.low || fallbackRange.silver.low },
+      platinum: { high: result.platinum?.high || fallbackRange.platinum.high, low: result.platinum?.low || fallbackRange.platinum.low }
+    };
+
+    console.log('极速数据接口获取的价格：', {
+      gold: realGoldPrice, gold999: realGold999Price,
+      silver: realSilverPrice, platinum: realPlatinumPrice
+    });
+
+    // 返回最终数据
+    return {
+      gold: realGoldPrice,
+      gold999: realGold999Price,
+      gold22k: realGoldPrice * 0.916, // 22K金=黄金价*0.916
+      gold18k: realGoldPrice * 0.75,  // 18K金=黄金价*0.75
+      silver: realSilverPrice,
+      platinum: realPlatinumPrice,
+      range: realRange,
+      isReal: true
+    };
+  } catch (error) {
+    console.error("极速数据接口获取失败：", error.message);
+    // 接口失败时返回备用价格
+    return {
+      ...fallbackPrices,
+      range: fallbackRange,
+      isReal: false
+    };
+  }
+}
